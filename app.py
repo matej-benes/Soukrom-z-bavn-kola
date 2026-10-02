@@ -149,6 +149,18 @@ def verify_token(token: str, kind: str = "access"):
     except Exception:
         return None
 
+def make_id_token(username: str, client_id: str, host: str) -> str:
+    """Fake OIDC id_token - nova aplikace ho muze vyzadovat pro identitu uzivatele."""
+    now = int(time.time())
+    header = _b64e(json.dumps({"alg": "HS256", "kid": "mojeskola1", "typ": "JWT"}).encode())
+    payload = _b64e(json.dumps({
+        "sub": username, "oi_au_id": _b64e(secrets.token_bytes(12)),
+        "azp": client_id or "ANDR", "aud": client_id or "ANDR",
+        "exp": now + 1800, "iat": now,
+        "iss": f"https://{(host or 'mojeskola').split(',')[0].strip()}/"}).encode())
+    sig = _b64e(hmac.new(APP_SECRET.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest())
+    return f"{header}.{payload}.{sig}"
+
 def new_token(nbytes=48):
     return base64.urlsafe_b64encode(secrets.token_bytes(nbytes)).decode()
 
@@ -303,7 +315,8 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         path = u.path.rstrip("/") or "/"
         qs = parse_qs(u.query)
-
+        if path.startswith("/api") or path.startswith("/web"):
+            print(f"API {self.command} {self.path} ct={self.headers.get('Content-Type','-')} auth={'yes' if self.headers.get('Authorization') else 'no'}")
         # --- webova online verze ---
         if path == "/":
             return self.send_file("index.html", "text/html; charset=utf-8")
@@ -419,7 +432,8 @@ class Handler(BaseHTTPRequestHandler):
         u = urlparse(self.path)
         path = u.path.rstrip("/") or "/"
         params = self.body_params()
-
+        if path.startswith("/api") or path.startswith("/web"):
+            print(f"API {self.command} {u.path} ct={self.headers.get('Content-Type','-')} auth={'yes' if self.headers.get('Authorization') else 'no'} keys={sorted(params.keys())}")
         if path in ("/api/login", "/api/3/login"):
             grant = params.get("grant_type", "")
             if grant == "password":
@@ -438,9 +452,12 @@ class Handler(BaseHTTPRequestHandler):
                 access, refresh = issue_token(user["username"], "access"), issue_token(user["username"], "refresh")
                 sessions_access[access] = user["username"]
                 sessions_refresh[refresh] = user["username"]
+                cid = str(params.get("client_id", "ANDR"))
+                host = self.headers.get("Host", "")
                 return self.send_json({"bak:ApiVersion": API_VERSION, "bak:AppVersion": APP_VERSION,
                     "token_type": "Bearer", "expires_in": 3599, "scope": "openid profile offline_access bakalari_api",
-                    "bak:UserId": "1", "refresh_token": refresh, "access_token": access})
+                    "bak:UserId": "1", "refresh_token": refresh, "access_token": access,
+                    "id_token": make_id_token(user["username"], cid, host)})
             elif grant == "refresh_token":
                 rt = params.get("refresh_token", "")
                 username = sessions_refresh.get(rt) or verify_token(rt, "refresh")
@@ -448,9 +465,12 @@ class Handler(BaseHTTPRequestHandler):
                     return self.send_json({"error": "invalid_grant"}, 400)
                 access = issue_token(username, "access")
                 sessions_access[access] = username
+                cid = str(params.get("client_id", "ANDR"))
+                host = self.headers.get("Host", "")
                 return self.send_json({"bak:ApiVersion": API_VERSION, "bak:AppVersion": APP_VERSION,
                     "token_type": "Bearer", "expires_in": 3599, "scope": "openid profile offline_access bakalari_api",
-                    "bak:UserId": "1", "refresh_token": rt, "access_token": access})
+                    "bak:UserId": "1", "refresh_token": rt, "access_token": access,
+                    "id_token": make_id_token(username, cid, host)})
             return self.send_json({"error": "unsupported_grant"}, 400)
 
         if path == "/api/3/register-notification" or path == "/api/3/unregister-user-notification":
