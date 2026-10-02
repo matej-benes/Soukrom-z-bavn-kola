@@ -497,8 +497,10 @@ class Handler(BaseHTTPRequestHandler):
                 sessions_refresh[refresh] = user["username"]
                 cid = str(params.get("client_id", "ANDR"))
                 host = self.headers.get("Host", "")
+                scope = str(params.get("scope", "") or "openid profile offline_access bakalari_api")[:255]
+                print(f"LOGIN user={user['username']} client_id={cid} scope={scope} grant=password")
                 return self.send_json({"bak:ApiVersion": API_VERSION, "bak:AppVersion": APP_VERSION,
-                    "token_type": "Bearer", "expires_in": 3599, "scope": "openid profile offline_access bakalari_api",
+                    "token_type": "Bearer", "expires_in": 3599, "scope": scope,
                     "bak:UserId": "1", "refresh_token": refresh, "access_token": access,
                     "id_token": make_id_token(user["username"], cid, host, access)})
             elif grant == "refresh_token":
