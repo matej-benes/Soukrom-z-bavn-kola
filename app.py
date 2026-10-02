@@ -124,9 +124,11 @@ def issue_token(username: str, kind: str = "access") -> str:
     inner["sig"] = _b64e(hmac.new(
         APP_SECRET.encode(), json.dumps(inner, sort_keys=True).encode(), hashlib.sha256).digest())
     envelope = _b64e(json.dumps(inner).encode())
+    # delky jako u realnych tokenu (access ~2500, refresh ~3400 znaku)
+    cipher_len = 1500 if kind == "access" else 2175
     return ".".join([header, envelope,
                      _b64e(secrets.token_bytes(32)),
-                     _b64e(secrets.token_bytes(96)),
+                     _b64e(secrets.token_bytes(cipher_len)),
                      _b64e(secrets.token_bytes(32))])
 
 def _verify_envelope(env_b64: str, kind: str):
@@ -659,6 +661,13 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200); self.end_headers()
 
     # --- bezpecne wrappery: nikdy nenechat spadnout bez odpovedi (Vercel Status 0) ---
+    def handle_expect_100(self):
+        # iOS (CFNetwork) posila u POSTu "Expect: 100-continue" - musime potvrdit,
+        # jinak BaseHTTPRequestHandler pozadavek tise zahodi bez odpovedi
+        self.send_response_only(100)
+        self.end_headers()
+        return True
+
     def _safe(self, fn):
         try:
             return fn()
