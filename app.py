@@ -19,8 +19,13 @@ from urllib.parse import urlparse, parse_qs
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(BASE_DIR, "school_data.json")
 
-API_VERSION = "3.23.0"
-APP_VERSION = "1.52.1102.1"
+API_VERSION = "3.52.1"
+APP_VERSION = "2.2.930.3"
+
+def api_error(error, description, uri="ID2024", status=400):
+    return ({"error": error, "error_description": description,
+             "error_uri": f"https://documentation.openiddict.com/errors/{uri}",
+             "bak:ApiVersion": API_VERSION, "bak:AppVersion": APP_VERSION}, status)
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.environ.get("SUPABASE_ANON_KEY", "")
@@ -486,8 +491,7 @@ class Handler(BaseHTTPRequestHandler):
                 password = str(params.get("password", ""))
                 user = find_user(username)
                 if not user or user.get("password") != password:
-                    return self.send_json({"error": "invalid_grant",
-                        "error_description": "Špatný login nebo heslo"}, 400)
+                    return self.send_json(*api_error("invalid_grant", "Špatný login nebo heslo"))
                 access, refresh = issue_token(user["username"], "access"), issue_token(user["username"], "refresh")
                 sessions_access[access] = user["username"]
                 sessions_refresh[refresh] = user["username"]
@@ -501,8 +505,8 @@ class Handler(BaseHTTPRequestHandler):
                 rt = params.get("refresh_token", "")
                 username = sessions_refresh.get(rt) or verify_token(rt, "refresh")
                 if not username:
-                    return self.send_json({"error": "invalid_grant",
-                        "error_description": "The specified token is invalid."}, 400)
+                    return self.send_json(*api_error("invalid_grant",
+                        "The specified token is invalid."))
                 access = issue_token(username, "access")
                 sessions_access[access] = username
                 cid = str(params.get("client_id", "ANDR"))
@@ -511,8 +515,8 @@ class Handler(BaseHTTPRequestHandler):
                     "token_type": "Bearer", "expires_in": 3599, "scope": "openid profile offline_access bakalari_api",
                     "bak:UserId": "1", "refresh_token": rt, "access_token": access,
                     "id_token": make_id_token(username, cid, host, access)})
-            return self.send_json({"error": "unsupported_grant",
-                "error_description": "The mandatory 'grant_type' parameter is missing."}, 400)
+            return self.send_json(*api_error("unsupported_grant",
+                "The mandatory 'grant_type' parameter is missing.", "ID2029"))
 
         if path == "/api/3/register-notification" or path == "/api/3/unregister-user-notification":
             return self.send_json({}, 200)
