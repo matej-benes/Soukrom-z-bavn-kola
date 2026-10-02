@@ -486,14 +486,8 @@ class Handler(BaseHTTPRequestHandler):
                 password = str(params.get("password", ""))
                 user = find_user(username)
                 if not user or user.get("password") != password:
-                    # zpetna kompatibilita: dynamicky ucet jako driv (jmeno=uzivatel, heslo=trida)
-                    # aby se dalo prihlasit i bez seed uctu
-                    if username and password and not user:
-                        user = {"username": username, "password": password, "name": username, "class_id": "3A", "type": "student"}
-                        DATA.setdefault("users", []).append(user)
-                        save_data("users")
-                    else:
-                        return self.send_json({"error": "invalid_grant"}, 400)
+                    return self.send_json({"error": "invalid_grant",
+                        "error_description": "Špatný login nebo heslo"}, 400)
                 access, refresh = issue_token(user["username"], "access"), issue_token(user["username"], "refresh")
                 sessions_access[access] = user["username"]
                 sessions_refresh[refresh] = user["username"]
@@ -507,7 +501,8 @@ class Handler(BaseHTTPRequestHandler):
                 rt = params.get("refresh_token", "")
                 username = sessions_refresh.get(rt) or verify_token(rt, "refresh")
                 if not username:
-                    return self.send_json({"error": "invalid_grant"}, 400)
+                    return self.send_json({"error": "invalid_grant",
+                        "error_description": "The specified token is invalid."}, 400)
                 access = issue_token(username, "access")
                 sessions_access[access] = username
                 cid = str(params.get("client_id", "ANDR"))
@@ -516,7 +511,8 @@ class Handler(BaseHTTPRequestHandler):
                     "token_type": "Bearer", "expires_in": 3599, "scope": "openid profile offline_access bakalari_api",
                     "bak:UserId": "1", "refresh_token": rt, "access_token": access,
                     "id_token": make_id_token(username, cid, host, access)})
-            return self.send_json({"error": "unsupported_grant"}, 400)
+            return self.send_json({"error": "unsupported_grant",
+                "error_description": "The mandatory 'grant_type' parameter is missing."}, 400)
 
         if path == "/api/3/register-notification" or path == "/api/3/unregister-user-notification":
             return self.send_json({}, 200)
