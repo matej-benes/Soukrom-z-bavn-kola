@@ -111,18 +111,52 @@ def _b64d(s: str) -> bytes:
     return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
 
 def issue_token(username: str, kind: str = "access") -> str:
-    """Stateless HMAC token ve tvaru JWT (header.payload.signature),
-    aby ho mobilni aplikace mohla dekodovat jako normalni token."""
+    """Stateless token ve tvaru JWE (5 casti oddelenych teckami) presne dle dokumentace:
+    1. cast = c successesprotected header {"alg":"RSA-OAEP","enc":"A256CBC-HS512",...},
+    2. cast = nami overitelna obalka se sub+exp+podpisem (aplikace ji jen preposila),
+    zbytek = nahodna data (fake sifrovany klic/iv/ciphertext/tag)."""
     exp = int(time.time()) + (3600 if kind == "access" else 30 * 24 * 3600)
-    header = _b64e(json.dumps({"alg": "HS256", "typ": "JWT"}).encode())
-    payload = _b64e(json.dumps({
-        "sub": username, "kind": kind, "exp": exp, "iat": int(time.time()),
-        "azp": "ANDR", "iss": DATA.get("school_name", "MojeSkola")}).encode())
-    sig = _b64e(hmac.new(APP_SECRET.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest())
-    return f"{header}.{payload}.{sig}"
+    typ = "at+jwt" if kind == "access" else "oi_reft+jwt"
+    header = _b64e(json.dumps({
+        "alg": "RSA-OAEP", "enc": "A256CBC-HS512",
+        "kid": secrets.token_hex(16), "typ": typ}).encode())
+    inner = {"sub": username, "kind": kind, "exp": exp}
+    inner["sig"] = _b64e(hmac.new(
+        APP_SECRET.encode(), json.dumps(inner, sort_keys=True).encode(), hashlib.sha256).digest())
+    envelope = _b64e(json.dumps(inner).encode())
+    return ".".join([header, envelope,
+                     _b64e(secrets.token_bytes(32)),
+                     _b64e(secrets.token_bytes(96)),
+                     _b64e(secrets.token_bytes(32))])
+
+def _verify_envelope(env_b64: str, kind: str):
+    try:
+        inner = json.loads(_b64d(env_b64).decode())
+        sig = inner.pop("sig", "")
+        expect = _b64e(hmac.new(
+            APP_SECRET.encode(), json.dumps(inner, sort_keys=True).encode(), hashlib.sha256).digest())
+        if not hmac.compare_digest(sig, expect):
+            return None
+        if inner.get("kind") != kind or int(inner.get("exp", 0)) < int(time.time()):
+            return None
+        return inner.get("sub")
+    except Exception:
+        return None
 
 def verify_token(token: str, kind: str = "access"):
-    # novy JWT tvar
+    # JWE tvar (5 casti)
+    try:
+        parts = token.split(".")
+        if len(parts) == 5:
+            hdr = json.loads(_b64d(parts[0]).decode())
+            want = "at+jwt" if kind == "access" else "oi_reft+jwt"
+            if hdr.get("typ") == want:
+                u = _verify_envelope(parts[1], kind)
+                if u:
+                    return u
+    except Exception:
+        pass
+    # JWT tvar (3 casti, zpetna kompatibilita)
     try:
         h_b64, p_b64, s_b64 = token.split(".")
         expect = hmac.new(APP_SECRET.encode(), f"{h_b64}.{p_b64}".encode(), hashlib.sha256).digest()
