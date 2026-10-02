@@ -111,13 +111,30 @@ def _b64d(s: str) -> bytes:
     return base64.urlsafe_b64decode(s + "=" * (-len(s) % 4))
 
 def issue_token(username: str, kind: str = "access") -> str:
-    """Stateless HMAC token - funguje i na Vercelu bez sdilene pameti."""
+    """Stateless HMAC token ve tvaru JWT (header.payload.signature),
+    aby ho mobilni aplikace mohla dekodovat jako normalni token."""
     exp = int(time.time()) + (3600 if kind == "access" else 30 * 24 * 3600)
-    payload = f"{kind}.{username}.{exp}".encode()
-    sig = hmac.new(APP_SECRET.encode(), payload, hashlib.sha256).digest()
-    return _b64e(payload) + "." + _b64e(sig)
+    header = _b64e(json.dumps({"alg": "HS256", "typ": "JWT"}).encode())
+    payload = _b64e(json.dumps({
+        "sub": username, "kind": kind, "exp": exp, "iat": int(time.time()),
+        "azp": "ANDR", "iss": DATA.get("school_name", "MojeSkola")}).encode())
+    sig = _b64e(hmac.new(APP_SECRET.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest())
+    return f"{header}.{payload}.{sig}"
 
 def verify_token(token: str, kind: str = "access"):
+    # novy JWT tvar
+    try:
+        h_b64, p_b64, s_b64 = token.split(".")
+        expect = hmac.new(APP_SECRET.encode(), f"{h_b64}.{p_b64}".encode(), hashlib.sha256).digest()
+        if not hmac.compare_digest(_b64d(s_b64), expect):
+            raise ValueError
+        payload = json.loads(_b64d(p_b64).decode())
+        if payload.get("kind") != kind or int(payload.get("exp", 0)) < int(time.time()):
+            return None
+        return payload.get("sub")
+    except Exception:
+        pass
+    # stary 2-dilny tvar (zpetna kompatibilita)
     try:
         p_b64, s_b64 = token.split(".", 1)
         payload = _b64d(p_b64)
