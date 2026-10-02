@@ -1,0 +1,771 @@
+{
+ "absence_per_subject": [
+  {
+   "Base": 2,
+   "DistanceTeaching": 0,
+   "Late": 1,
+   "LessonsCount": 24,
+   "School": 0,
+   "Soon": 0,
+   "SubjectName": "Český jazyk a literatura"
+  },
+  {
+   "Base": 1,
+   "DistanceTeaching": 0,
+   "Late": 0,
+   "LessonsCount": 20,
+   "School": 1,
+   "Soon": 0,
+   "SubjectName": "Matematika"
+  },
+  {
+   "Base": 0,
+   "DistanceTeaching": 0,
+   "Late": 0,
+   "LessonsCount": 18,
+   "School": 0,
+   "Soon": 0,
+   "SubjectName": "Anglický jazyk"
+  }
+ ],
+ "absences": [
+  {
+   "Date": "2026-09-21T00:00:00+02:00",
+   "Late": 0,
+   "Missed": 0,
+   "Ok": 5,
+   "School": 0,
+   "Soon": 0,
+   "Unsolved": 0
+  },
+  {
+   "Date": "2026-09-22T00:00:00+02:00",
+   "Late": 1,
+   "Missed": 0,
+   "Ok": 0,
+   "School": 0,
+   "Soon": 0,
+   "Unsolved": 0
+  },
+  {
+   "Date": "2026-09-25T00:00:00+02:00",
+   "Late": 0,
+   "Missed": 0,
+   "Ok": 2,
+   "School": 1,
+   "Soon": 0,
+   "Unsolved": 1
+  }
+ ],
+ "classes": [
+  {
+   "Abbrev": "3.A",
+   "Id": "3A",
+   "Name": "3. A"
+  }
+ ],
+ "events": [
+  {
+   "Classes": [
+    {
+     "Abbrev": "3.A",
+     "Id": "3A",
+     "Name": "3. A"
+    }
+   ],
+   "DateChanged": "2026-09-20T10:00:00+02:00",
+   "Description": "Adaptační den, sraz v 8:00 před školou.",
+   "EventType": {
+    "Abbrev": "škol",
+    "Id": "SA",
+    "Name": "školní akce"
+   },
+   "Id": "EV1",
+   "Note": null,
+   "Rooms": [],
+   "Students": [],
+   "Teachers": [
+    {
+     "Abbrev": "NU",
+     "Id": "U001",
+     "Name": "Petr Novotný"
+    }
+   ],
+   "Times": [
+    {
+     "EndTime": "2026-10-05T12:00:00+02:00",
+     "StartTime": "2026-10-05T08:00:00+02:00",
+     "WholeDay": false
+    }
+   ],
+   "Title": "Adaptační den 3.A"
+  }
+ ],
+ "final_terms": [
+  {
+   "AbsentHours": 12,
+   "AchievementText": "prospěl",
+   "CertificateDate": "2026-01-30T00:00:00+01:00",
+   "Closed": true,
+   "FinalMarks": [
+    {
+     "EditDate": "2026-01-28T10:00:00+01:00",
+     "Id": "F1",
+     "MarkDate": "2026-01-28T00:00:00+01:00",
+     "MarkText": "2",
+     "SubjectId": "28"
+    },
+    {
+     "EditDate": "2026-01-28T10:00:00+01:00",
+     "Id": "F2",
+     "MarkDate": "2026-01-28T00:00:00+01:00",
+     "MarkText": "1",
+     "SubjectId": "10"
+    },
+    {
+     "EditDate": "2026-01-28T10:00:00+01:00",
+     "Id": "F3",
+     "MarkDate": "2026-01-28T00:00:00+01:00",
+     "MarkText": "2",
+     "SubjectId": "27"
+    }
+   ],
+   "Grade": 3,
+   "GradeName": "třetí",
+   "MarksAverage": 1.67,
+   "NotExcusedHours": 0,
+   "Repeated": false,
+   "SchoolYear": "2025/26",
+   "Semester": "1",
+   "SemesterName": "1.",
+   "Subjects": [
+    {
+     "Abbrev": "ČJL",
+     "Id": "28",
+     "Name": "Český jazyk a literatura"
+    },
+    {
+     "Abbrev": "M",
+     "Id": "10",
+     "Name": "Matematika"
+    },
+    {
+     "Abbrev": "AJ",
+     "Id": "27",
+     "Name": "Anglický jazyk"
+    }
+   ],
+   "YearInSchool": 3
+  }
+ ],
+ "groups": [
+  {
+   "Abbrev": "3.A",
+   "ClassId": "3A",
+   "Id": "3A",
+   "Name": "3. A"
+  }
+ ],
+ "homeworks": [
+  {
+   "Attachments": [],
+   "Class": {
+    "Abbrev": "3.A",
+    "Id": "3A",
+    "Name": "3. A"
+   },
+   "Closed": false,
+   "Content": "Pracovní sešit str. 24, cv. 3 a 4.",
+   "DateEnd": "2026-10-06T00:00:00+02:00",
+   "DateStart": "2026-10-02T00:00:00+02:00",
+   "Done": false,
+   "Electronic": false,
+   "Finished": false,
+   "Group": {
+    "Abbrev": "3.A",
+    "Id": "3A",
+    "Name": "3. A"
+   },
+   "Hour": 2,
+   "ID": "HW1",
+   "Notice": "",
+   "Subject": {
+    "Abbrev": "M",
+    "Id": "10",
+    "Name": "Matematika"
+   },
+   "Teacher": {
+    "Abbrev": "NU",
+    "Id": "U001",
+    "Name": "Petr Novotný"
+   }
+  },
+  {
+   "Attachments": [],
+   "Class": {
+    "Abbrev": "3.A",
+    "Id": "3A",
+    "Name": "3. A"
+   },
+   "Closed": false,
+   "Content": "Naučit se slovíčka lekce 5.",
+   "DateEnd": "2026-10-07T00:00:00+02:00",
+   "DateStart": "2026-10-01T00:00:00+02:00",
+   "Done": false,
+   "Electronic": false,
+   "Finished": false,
+   "Group": {
+    "Abbrev": "3.A",
+    "Id": "3A",
+    "Name": "3. A"
+   },
+   "Hour": 3,
+   "ID": "HW2",
+   "Notice": "",
+   "Subject": {
+    "Abbrev": "AJ",
+    "Id": "27",
+    "Name": "Anglický jazyk"
+   },
+   "Teacher": {
+    "Abbrev": "ES",
+    "Id": "U002",
+    "Name": "Eva Svobodová"
+   }
+  }
+ ],
+ "hours": [
+  {
+   "BeginTime": "8:00",
+   "Caption": "1",
+   "EndTime": "8:45",
+   "Id": 3
+  },
+  {
+   "BeginTime": "8:55",
+   "Caption": "2",
+   "EndTime": "9:40",
+   "Id": 4
+  },
+  {
+   "BeginTime": "10:00",
+   "Caption": "3",
+   "EndTime": "10:45",
+   "Id": 5
+  },
+  {
+   "BeginTime": "10:55",
+   "Caption": "4",
+   "EndTime": "11:40",
+   "Id": 6
+  },
+  {
+   "BeginTime": "11:50",
+   "Caption": "5",
+   "EndTime": "12:35",
+   "Id": 7
+  },
+  {
+   "BeginTime": "12:40",
+   "Caption": "6",
+   "EndTime": "13:25",
+   "Id": 8
+  }
+ ],
+ "marks": [
+  {
+   "AverageText": "2,0",
+   "MarkPredictionEnabled": true,
+   "Marks": [
+    {
+     "CalculatedMarkText": "",
+     "Caption": "Diktát",
+     "ClassRankText": null,
+     "ConfirmedBy": null,
+     "ConfirmedWhen": null,
+     "EditDate": "2026-09-18T08:00:00+02:00",
+     "Id": "M1",
+     "IsNew": false,
+     "IsPoints": false,
+     "MarkConfirmationState": null,
+     "MarkDate": "2026-09-16T00:00:00+02:00",
+     "MarkText": "2",
+     "MaxPoints": 0,
+     "PointsText": "",
+     "SubjectId": "28",
+     "TeacherId": "U003",
+     "Theme": "",
+     "Type": "O",
+     "TypeNote": "diktát",
+     "Weight": 5
+    },
+    {
+     "CalculatedMarkText": "",
+     "Caption": "Čtení s porozuměním",
+     "ClassRankText": null,
+     "ConfirmedBy": null,
+     "ConfirmedWhen": null,
+     "EditDate": "2026-09-25T08:00:00+02:00",
+     "Id": "M2",
+     "IsNew": true,
+     "IsPoints": false,
+     "MarkConfirmationState": null,
+     "MarkDate": "2026-09-23T00:00:00+02:00",
+     "MarkText": "1",
+     "MaxPoints": 0,
+     "PointsText": "",
+     "SubjectId": "28",
+     "TeacherId": "U003",
+     "Theme": "",
+     "Type": "W",
+     "TypeNote": "písemka",
+     "Weight": 3
+    }
+   ],
+   "PointsOnly": false,
+   "Subject": {
+    "Abbrev": "ČJL",
+    "Id": "28",
+    "Name": "Český jazyk a literatura"
+   },
+   "SubjectNote": "",
+   "TemporaryMark": "",
+   "TemporaryMarkNote": ""
+  },
+  {
+   "AverageText": "1,5",
+   "MarkPredictionEnabled": true,
+   "Marks": [
+    {
+     "CalculatedMarkText": "",
+     "Caption": "Písemka zlomky",
+     "ClassRankText": null,
+     "ConfirmedBy": null,
+     "ConfirmedWhen": null,
+     "EditDate": "2026-09-20T09:00:00+02:00",
+     "Id": "M3",
+     "IsNew": true,
+     "IsPoints": false,
+     "MarkConfirmationState": null,
+     "MarkDate": "2026-09-19T00:00:00+02:00",
+     "MarkText": "1",
+     "MaxPoints": 0,
+     "PointsText": "",
+     "SubjectId": "10",
+     "TeacherId": "U001",
+     "Theme": "",
+     "Type": "Z",
+     "TypeNote": "písemná práce",
+     "Weight": 5
+    },
+    {
+     "CalculatedMarkText": "",
+     "Caption": "Ústní zkoušení",
+     "ClassRankText": null,
+     "ConfirmedBy": null,
+     "ConfirmedWhen": null,
+     "EditDate": "2026-09-26T09:00:00+02:00",
+     "Id": "M4",
+     "IsNew": false,
+     "IsPoints": false,
+     "MarkConfirmationState": null,
+     "MarkDate": "2026-09-24T00:00:00+02:00",
+     "MarkText": "2",
+     "MaxPoints": 0,
+     "PointsText": "",
+     "SubjectId": "10",
+     "TeacherId": "U001",
+     "Theme": "",
+     "Type": "U",
+     "TypeNote": "ústní",
+     "Weight": 3
+    }
+   ],
+   "PointsOnly": false,
+   "Subject": {
+    "Abbrev": "M",
+    "Id": "10",
+    "Name": "Matematika"
+   },
+   "SubjectNote": "",
+   "TemporaryMark": "",
+   "TemporaryMarkNote": ""
+  },
+  {
+   "AverageText": "1,0",
+   "MarkPredictionEnabled": true,
+   "Marks": [
+    {
+     "CalculatedMarkText": "",
+     "Caption": "Slovíčka lekce 4",
+     "ClassRankText": null,
+     "ConfirmedBy": null,
+     "ConfirmedWhen": null,
+     "EditDate": "2026-09-22T08:00:00+02:00",
+     "Id": "M5",
+     "IsNew": false,
+     "IsPoints": true,
+     "MarkConfirmationState": null,
+     "MarkDate": "2026-09-21T00:00:00+02:00",
+     "MarkText": "90",
+     "MaxPoints": 100,
+     "PointsText": "",
+     "SubjectId": "27",
+     "TeacherId": "U002",
+     "Theme": "",
+     "Type": "Z",
+     "TypeNote": "test",
+     "Weight": null
+    }
+   ],
+   "PointsOnly": false,
+   "Subject": {
+    "Abbrev": "AJ",
+    "Id": "27",
+    "Name": "Anglický jazyk"
+   },
+   "SubjectNote": "",
+   "TemporaryMark": "",
+   "TemporaryMarkNote": ""
+  }
+ ],
+ "messages_noticeboard": [
+  {
+   "Attachments": [],
+   "CanAnswer": false,
+   "CanConfirm": false,
+   "CanHide": false,
+   "Confirmed": true,
+   "DateFrom": null,
+   "DateTo": null,
+   "Hidden": false,
+   "Id": "N1",
+   "LifeTime": "ToRead",
+   "Read": true,
+   "RelevantName": "ředitelství",
+   "RelevantPersonType": "administrator",
+   "Sender": {
+    "Id": "ADMIN",
+    "Name": "Vedení školy",
+    "Type": "administrator"
+   },
+   "SentDate": "2026-09-28T08:00:00+02:00",
+   "Text": "<div>Vítejte v novém školním roce! Nástěnka školy.</div>",
+   "Title": "Zahájení školního roku",
+   "Type": "OBECNA"
+  }
+ ],
+ "messages_received": [
+  {
+   "Attachments": [],
+   "CanAnswer": true,
+   "CanConfirm": false,
+   "CanHide": true,
+   "Confirmed": true,
+   "DateFrom": null,
+   "DateTo": null,
+   "Hidden": false,
+   "Id": "MSG1",
+   "LifeTime": "ToRead",
+   "Read": false,
+   "RelevantName": "Petr Novotný",
+   "RelevantPersonType": "teacher",
+   "Sender": {
+    "Id": "U001",
+    "Name": "Petr Novotný (třídní učitel)",
+    "Type": "teacher"
+   },
+   "SentDate": "2026-09-30T09:00:00+02:00",
+   "Text": "<div>Dobrý den, připomínám třídní schůzky ve čtvrtek od 16:00.</div>",
+   "Title": "Třídní schůzky",
+   "Type": "OBECNA"
+  }
+ ],
+ "messages_sent": [],
+ "rooms": [
+  {
+   "Abbrev": "U1",
+   "Id": "R1",
+   "Name": ""
+  },
+  {
+   "Abbrev": "U2",
+   "Id": "R2",
+   "Name": ""
+  },
+  {
+   "Abbrev": "TV",
+   "Id": "R3",
+   "Name": ""
+  }
+ ],
+ "school_name": "Soukromá zábavná škola, Bukovany u Sokolova",
+ "subjects": [
+  {
+   "SubjectAbbrev": "ČJL",
+   "SubjectID": "28",
+   "SubjectName": "Český jazyk a literatura",
+   "TeacherAbbrev": "KU",
+   "TeacherEmail": "kucerova@mojeskola.cz",
+   "TeacherHomePhone": null,
+   "TeacherID": "U003",
+   "TeacherMobilePhone": null,
+   "TeacherName": "Jana Kučerová",
+   "TeacherSchoolPhone": null,
+   "TeacherWeb": ""
+  },
+  {
+   "SubjectAbbrev": "M",
+   "SubjectID": "10",
+   "SubjectName": "Matematika",
+   "TeacherAbbrev": "NU",
+   "TeacherEmail": "novotny@mojeskola.cz",
+   "TeacherHomePhone": null,
+   "TeacherID": "U001",
+   "TeacherMobilePhone": null,
+   "TeacherName": "Petr Novotný",
+   "TeacherSchoolPhone": null,
+   "TeacherWeb": ""
+  },
+  {
+   "SubjectAbbrev": "AJ",
+   "SubjectID": "27",
+   "SubjectName": "Anglický jazyk",
+   "TeacherAbbrev": "ES",
+   "TeacherEmail": "svobodova@mojeskola.cz",
+   "TeacherHomePhone": null,
+   "TeacherID": "U002",
+   "TeacherMobilePhone": null,
+   "TeacherName": "Eva Svobodová",
+   "TeacherSchoolPhone": null,
+   "TeacherWeb": ""
+  },
+  {
+   "SubjectAbbrev": "D",
+   "SubjectID": "3",
+   "SubjectName": "Dějepis",
+   "TeacherAbbrev": "NU",
+   "TeacherEmail": "novotny@mojeskola.cz",
+   "TeacherHomePhone": null,
+   "TeacherID": "U001",
+   "TeacherMobilePhone": null,
+   "TeacherName": "Petr Novotný",
+   "TeacherSchoolPhone": null,
+   "TeacherWeb": ""
+  },
+  {
+   "SubjectAbbrev": "F",
+   "SubjectID": "11",
+   "SubjectName": "Fyzika",
+   "TeacherAbbrev": "NU",
+   "TeacherEmail": "novotny@mojeskola.cz",
+   "TeacherHomePhone": null,
+   "TeacherID": "U001",
+   "TeacherMobilePhone": null,
+   "TeacherName": "Petr Novotný",
+   "TeacherSchoolPhone": null,
+   "TeacherWeb": ""
+  }
+ ],
+ "substitutions": [
+  {
+   "ChangeSubject": null,
+   "ChangeType": "Substitution",
+   "Day": "2026-10-05T00:00:00+02:00",
+   "Description": "Suplování: Novotný Petr, U1 (M, 3.A)",
+   "Hours": "2. hod",
+   "Time": "8:55 - 9:40",
+   "TypeAbbrev": null,
+   "TypeName": null
+  },
+  {
+   "ChangeSubject": null,
+   "ChangeType": "Canceled",
+   "Day": "2026-10-06T00:00:00+02:00",
+   "Description": "Odpadá: Tělesná výchova",
+   "Hours": "5. hod",
+   "Time": "11:50 - 12:35",
+   "TypeAbbrev": null,
+   "TypeName": null
+  }
+ ],
+ "teachers": [
+  {
+   "Abbrev": "NU",
+   "Id": "U001",
+   "Name": "Petr Novotný"
+  },
+  {
+   "Abbrev": "ES",
+   "Id": "U002",
+   "Name": "Eva Svobodová"
+  },
+  {
+   "Abbrev": "KU",
+   "Id": "U003",
+   "Name": "Jana Kučerová"
+  }
+ ],
+ "timetable": {
+  "1": [
+   [
+    "28",
+    "U003",
+    "R1"
+   ],
+   [
+    "10",
+    "U001",
+    "R1"
+   ],
+   [
+    "27",
+    "U002",
+    "R2"
+   ],
+   [
+    "3",
+    "U001",
+    "R1"
+   ],
+   [
+    "11",
+    "U001",
+    "R1"
+   ]
+  ],
+  "2": [
+   [
+    "10",
+    "U001",
+    "R1"
+   ],
+   [
+    "28",
+    "U003",
+    "R1"
+   ],
+   [
+    "15",
+    "U001",
+    "R3"
+   ],
+   [
+    "15",
+    "U001",
+    "R3"
+   ],
+   [
+    "27",
+    "U002",
+    "R2"
+   ]
+  ],
+  "3": [
+   [
+    "27",
+    "U002",
+    "R2"
+   ],
+   [
+    "10",
+    "U001",
+    "R1"
+   ],
+   [
+    "28",
+    "U003",
+    "R1"
+   ],
+   [
+    "3",
+    "U001",
+    "R1"
+   ],
+   [
+    "12",
+    "U001",
+    "R1"
+   ]
+  ],
+  "4": [
+   [
+    "10",
+    "U001",
+    "R1"
+   ],
+   [
+    "11",
+    "U001",
+    "R1"
+   ],
+   [
+    "28",
+    "U003",
+    "R1"
+   ],
+   [
+    "9",
+    "U001",
+    "R1"
+   ],
+   [
+    "6",
+    "U003",
+    "R1"
+   ]
+  ],
+  "5": [
+   [
+    "28",
+    "U003",
+    "R1"
+   ],
+   [
+    "27",
+    "U002",
+    "R2"
+   ],
+   [
+    "10",
+    "U001",
+    "R1"
+   ],
+   [
+    "15",
+    "U001",
+    "R3"
+   ]
+  ]
+ },
+ "users": [
+  {
+   "class_id": "3A",
+   "name": "Jan Novák",
+   "password": "zak1234",
+   "type": "student",
+   "username": "zak1"
+  },
+  {
+   "class_id": "3A",
+   "name": "Ema Nováková",
+   "password": "zak1234",
+   "type": "student",
+   "username": "ema"
+  },
+  {
+   "class_id": null,
+   "name": "Petr Novotný",
+   "password": "ucitel123",
+   "type": "teacher",
+   "username": "ucitel"
+  },
+  {
+   "class_id": null,
+   "name": "Admin Školy",
+   "password": "admin123",
+   "type": "admin",
+   "username": "admin"
+  }
+ ]
+}

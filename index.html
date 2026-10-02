@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MojeŠkola Online – školní systém</title>
+<style>
+:root{--bg:#eef2f6;--card:#fff;--ink:#1a2b3c;--mut:#5b7288;--acc:#00457d;--acc2:#00325a;--line:#d7e0e8;--warn:#d97706;--bad:#dc2626}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+header{background:linear-gradient(135deg,#00457d,#00325a);color:#fff;padding:14px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+header .logo{width:38px;height:38px;border-radius:12px;background:#fff;color:var(--acc2);display:grid;place-items:center;font-weight:900;font-size:20px}
+header small{opacity:.85}
+main{max-width:1080px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+nav.tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+nav.tabs button{border:1px solid var(--line);background:#fff;padding:9px 13px;border-radius:999px;cursor:pointer}
+nav.tabs button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left}
+.mark{display:inline-block;min-width:30px;text-align:center;font-weight:800;padding:4px 8px;border-radius:9px;background:#e8f7ef;border:1px solid #bfe6d2}
+.mark.m1{background:#dcfce7}.mark.m2{background:#e0f2fe}.mark.m3{background:#fef9c3}.mark.m4{background:#ffedd5}.mark.m5{background:#fee2e2}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;margin:4px 0}
+button.go{background:var(--acc);color:#fff;border:0;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:700}
+button.go:hover{background:var(--acc2)}
+.mut{color:var(--mut)}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1;min-width:160px}
+#login{max-width:420px;margin:8vh auto}
+.tt{display:grid;grid-template-columns:70px repeat(5,1fr);gap:6px;font-size:13px}.tt div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:6px;min-height:44px}
+.tt .h{background:#00457d;color:#fff;font-weight:800;text-align:center}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;background:#eef2f1;font-size:12px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<header><div class="logo">SŠ</div><div><b id="hdrSchool">Soukromá zábavná škola, Bukovany u Sokolova</b><br><small id="schoolName">MojeŠkola Online • web i mobilní aplikace</small></div></header>
+<main>
+<div id="login" class="card">
+<h2>Přihlášení – web školy</h2>
+<p class="mut">Účty: <b>zak1 / zak1234</b> (žák) • <b>ema / zak1234</b><br><b>ucitel / ucitel123</b> (učitel) • <b>admin / admin123</b></p>
+<input id="u" placeholder="uživatelské jméno" value="zak1">
+<input id="p" type="password" placeholder="heslo" value="zak1234">
+<button class="go" onclick="login()">Přihlásit</button>
+<p id="err" style="color:var(--bad)"></p>
+<hr>
+<h3>Připojení mobilní aplikace Bakaláři Online</h3>
+<p class="mut">Server opiš / zkopíruj do aplikace (jednorázové přihlášení → URL serveru):</p>
+<div class="row"><input id="srv" readonly value=""><button class="go" onclick="copySrv()">Kopírovat</button></div>
+<p class="mut">V oficiálním seznamu škol tvoje škola nebude – ten spravuje Bakaláři jen pro licencované školy. Stačí zadat URL jednou, aplikace si ji pamatuje.</p>
+</div>
+
+<div id="app" class="hidden">
+<nav class="tabs" id="tabs"></nav>
+<div id="view"></div>
+<p><button class="go" onclick="logout()">Odhlásit</button></p>
+</div>
+</main>
+<script>
+let TOK=null, ME=null, CFG=null;
+const $=s=>document.querySelector(s);
+async function api(path,method='GET',body){
+  const o={method,headers:{}};
+  if(TOK) o.headers.Authorization='Bearer '+TOK;
+  if(body){o.headers['Content-Type']='application/json';o.body=JSON.stringify(body);}
+  const r=await fetch(path,o);
+  if(r.status===204) return null;
+  return r.json();
+}
+async function login(){
+  $('#err').textContent='';
+  const username=$('#u').value.trim(), password=$('#p').value;
+  const fd=new URLSearchParams({grant_type:'password',username,password,client_id:'test',client_secret:'test'});
+  const r=await fetch('/api/3/login',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:fd});
+  if(!r.ok){$('#err').textContent='Špatné jméno nebo heslo';return;}
+  const j=await r.json(); TOK=j.access_token;
+  localStorage.setItem('ms_tok',TOK);
+  ME=await api('/api/3/user'); CFG=await api('/web/config');
+  $('#schoolName').textContent=CFG.school_name||'';
+  $('#login').classList.add('hidden');$('#app').classList.remove('hidden');
+  buildTabs(); show('prehled');
+}
+function logout(){TOK=null;localStorage.removeItem('ms_tok');location.reload();}
+const TABS=[['prehled','Přehled'],['znamky','Známky'],['rozvrh','Rozvrh'],['ukoly','Úkoly'],['dochazka','Docházka'],['supl','Suplování'],['akce','Akce'],['zpravy','Zprávy'],['admin','Učitel']];
+function buildTabs(){$('#tabs').innerHTML=TABS.map(t=>`<button data-t="${t[0]}" onclick="show('${t[0]}')">${t[1]}</button>`).join('');}
+async function show(t){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  const v=$('#view'); v.innerHTML='<div class="card">Načítám…</div>';
+  if(t==='prehled'){
+    const [mk,hw,sub]=await Promise.all([api('/api/3/marks'),api('/api/3/homeworks'),api('/api/3/substitutions')]);
+    const news=mk.Subjects.flatMap(s=>s.Marks.map(m=>({...m,pred:s.Subject.Name}))).sort((a,b)=>b.MarkDate.localeCompare(a.MarkDate)).slice(0,5);
+    v.innerHTML=`<div class="card"><h2>Ahoj, ${ME.FullName}</h2><div class="mut">${CFG.school_name} • ${ME.Class?.Name||''}</div></div>
+    <div class="grid"><div class="card"><h3>Nejnovější známky</h3>${news.map(m=>`<div><span class="mark m${m.MarkText[0]||'1'}">${m.MarkText}</span> ${m.pred} – ${m.Caption} <span class="mut">${m.MarkDate.slice(0,10)}</span></div>`).join('')||'Žádné'}</div>
+    <div class="card"><h3>Úkoly (${hw.Homeworks.length})</h3>${hw.Homeworks.map(h=>`<div>📝 <b>${h.Subject.Name}</b>: ${h.Content} <span class="mut">do ${h.DateEnd.slice(0,10)}</span></div>`).join('')||'Hotovo!'}</div>
+    <div class="card"><h3>Suplování (${sub.Changes.length})</h3>${sub.Changes.map(c=>`<div>⚠️ ${c.Day.slice(0,10)} ${c.Hours}: ${c.Description}</div>`).join('')||'Beze změn'}</div></div>`;
+  }
+  if(t==='znamky'){
+    const j=await api('/api/3/marks'); const f=await api('/api/3/marks/final');
+    v.innerHTML=j.Subjects.map(s=>`<div class="card"><h3>${s.Subject.Name} <span class="mut">průměr ${s.AverageText}</span></h3>${s.Marks.map(m=>`<span class="mark m${m.MarkText[0]}" title="${m.Caption} ${m.MarkDate.slice(0,10)} váha ${m.Weight}">${m.MarkText}</span> `).join('')}<div class="mut">${s.Marks.map(m=>`${m.Caption} (${m.MarkDate.slice(0,10)})`).join(' • ')}</div></div>`).join('')
+    +`<div class="card"><h3>Vysvědčení</h3>${(f.CertificateTerms||[]).map(c=>`<div><b>${c.SchoolYear} ${c.SemesterName}pololetí</b> – ${c.AchievementText}, průměr ${c.MarksAverage}</div>`).join('')||'—'}</div>`;
+  }
+  if(t==='rozvrh'){
+    const d=new Date().toISOString().slice(0,10);
+    const j=await api('/api/3/timetable/actual?date='+d);
+    const subById=Object.fromEntries(j.Subjects.map(s=>[s.Id,s.Abbrev]));
+    let h=`<div class="card"><h3>Tento týden</h3><div class="tt"><div></div>${j.Days.map(x=>`<div class="h">${x.Date.slice(8,10)}.${x.Date.slice(5,7)}.</div>`).join('')}`;
+    const maxH=Math.max(...j.Days.map(x=>x.Atoms.length));
+    for(let i=0;i<maxH;i++){h+=`<div class="h">${i+1}.</div>`;for(const day of j.Days){const a=day.Atoms[i];h+=`<div>${a?`<b>${subById[a.SubjectId]||a.SubjectId}</b><br><span class="mut">${a.RoomId}</span>`:''}</div>`;}}
+    v.innerHTML=h+'</div></div>';
+  }
+  if(t==='ukoly'){
+    const j=await api('/api/3/homeworks');
+    v.innerHTML=`<div class="card"><h3>Domácí úkoly</h3><table><tr><th>Předmět</th><th>Zadání</th><th>Do</th></tr>${j.Homeworks.map(h=>`<tr><td>${h.Subject.Name}</td><td>${h.Content}</td><td>${h.DateEnd.slice(0,10)}</td></tr>`).join('')}</table></div>`;
+  }
+  if(t==='dochazka'){
+    const j=await api('/api/3/absence/student');
+    v.innerHTML=`<div class="card"><h3>Absence</h3><table><tr><th>Den</th><th>Omluveno</th><th>Neomluveno</th></tr>${j.Absences.map(a=>`<tr><td>${a.Date.slice(0,10)}</td><td>${a.Ok}</td><td>${a.Unsolved}</td></tr>`).join('')}</table><h4>Dle předmětů</h4><table>${j.AbsencesPerSubject.map(a=>`<tr><td>${a.SubjectName}</td><td>${a.Base} hod</td></tr>`).join('')}</table></div>`;
+  }
+  if(t==='supl'){
+    const j=await api('/api/3/substitutions');
+    v.innerHTML=`<div class="card"><h3>Suplování / změny</h3>${j.Changes.map(c=>`<div>⚠️ <b>${c.Day.slice(0,10)} ${c.Hours}</b> [${c.ChangeType}] ${c.Description}</div>`).join('')||'Beze změn'}</div>`;
+  }
+  if(t==='akce'){
+    const j=await api('/api/3/events/my');
+    v.innerHTML=j.Events.map(e=>`<div class="card"><h3>${e.Title}</h3><div class="mut">${e.Times[0]?.StartTime.slice(0,16)}</div><p>${e.Description}</p></div>`).join('')||'<div class="card">Žádné akce</div>';
+  }
+  if(t==='zpravy'){
+    const [a,b,c]=await Promise.all([
+      fetch('/api/3/komens/messages/received',{method:'POST',headers:{Authorization:'Bearer '+TOK}}).then(r=>r.json()),
+      fetch('/api/3/komens/messages/noticeboard',{method:'POST',headers:{Authorization:'Bearer '+TOK}}).then(r=>r.json()),
+      api('/api/3/homeworks')]);
+    v.innerHTML=`<div class="card"><h3>Přijaté zprávy</h3>${a.Messages.map(m=>`<div><b>${m.Title}</b> <span class="mut">${m.SentDate.slice(0,10)} – ${m.Sender.Name}</span><div>${m.Text}</div></div><hr>`).join('')||'—'}</div>
+    <div class="card"><h3>Nástěnka</h3>${b.Messages.map(m=>`<div><b>${m.Title}</b><div>${m.Text}</div></div>`).join('')}</div>`;
+  }
+  if(t==='admin'){
+    if(!['teacher','admin'].includes(ME.UserType)&&ME.FullName!=='Admin Školy'){v.innerHTML='<div class="card">Jen pro učitele. Přihlas se jako <b>ucitel / ucitel123</b>.</div>';return;}
+    const subs=CFG.subjects.map(s=>`<option value="${s.SubjectID}">${s.SubjectName}</option>`).join('');
+    v.innerHTML=`<div class="grid">
+    <div class="card"><h3>+ Známka</h3><select id="am_s">${subs}</select><input id="am_m" placeholder="známka 1-5"><input id="am_c" placeholder="popis (písemka)"><input id="am_w" type="number" value="3" placeholder="váha"><button class="go" onclick="adminMark()">Uložit</button></div>
+    <div class="card"><h3>+ Úkol</h3><select id="ah_s">${subs}</select><textarea id="ah_t" placeholder="zadání"></textarea><input id="ah_d" type="date"><button class="go" onclick="adminHw()">Uložit</button></div>
+    <div class="card"><h3>+ Zpráva žákům</h3><input id="ag_t" placeholder="nadpis"><textarea id="ag_x" placeholder="text"></textarea><button class="go" onclick="adminMsg()">Odeslat</button></div>
+    <div class="card"><h3>+ Suplování</h3><input id="as_d" type="date"><input id="as_h" placeholder="např. 2. hod"><input id="as_p" placeholder="popis"><button class="go" onclick="adminSub()">Uložit</button></div>
+    </div><p class="mut">Uložené se hned ukáže na webu i v mobilní aplikaci.</p>`;
+  }
+}
+async function adminMark(){await api('/web/admin/add-mark','POST',{subject_id:$('#am_s').value,mark:$('#am_m').value||'1',caption:$('#am_c').value||'Známka',weight:$('#am_w').value||3});alert('Uloženo');}
+async function adminHw(){await api('/web/admin/add-homework','POST',{subject_id:$('#ah_s').value,content:$('#ah_t').value,date_end:$('#ah_d').value});alert('Uloženo');}
+async function adminMsg(){await api('/web/admin/add-message','POST',{title:$('#ag_t').value,text:$('#ag_x').value});alert('Odesláno');}
+async function adminSub(){await api('/web/admin/add-substitution','POST',{day:$('#as_d').value,hours:$('#as_h').value,description:$('#as_p').value});alert('Uloženo');}
+// auto-login
+document.getElementById('srv').value=location.origin;
+function copySrv(){const i=document.getElementById('srv');i.select();document.execCommand&&document.execCommand('copy');if(navigator.clipboard)navigator.clipboard.writeText(i.value);alert('Zkopírováno: '+i.value);}
+(async()=>{const t=localStorage.getItem('ms_tok');if(t){TOK=t;try{ME=await api('/api/3/user');CFG=await api('/web/config');$('#login').classList.add('hidden');$('#app').classList.remove('hidden');buildTabs();show('prehled');}catch(e){localStorage.removeItem('ms_tok');}}})();
+</script>
+</body>
+</html>
