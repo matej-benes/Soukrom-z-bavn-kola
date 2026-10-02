@@ -311,7 +311,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
         self.end_headers()
 
-    def do_GET(self):
+    def _do_GET(self):
         u = urlparse(self.path)
         path = u.path.rstrip("/") or "/"
         qs = parse_qs(u.query)
@@ -428,7 +428,7 @@ class Handler(BaseHTTPRequestHandler):
         print("Unhandled GET", self.path)
         return self.send_json({}, 200)
 
-    def do_POST(self):
+    def _do_POST(self):
         u = urlparse(self.path)
         path = u.path.rstrip("/") or "/"
         params = self.body_params()
@@ -600,7 +600,7 @@ class Handler(BaseHTTPRequestHandler):
         print("Unhandled POST", self.path)
         return self.send_json({}, 200)
 
-    def do_PUT(self):
+    def _do_PUT(self):
         u = urlparse(self.path)
         path = u.path.rstrip("/") or "/"
         if "mark-as-read" in path:
@@ -612,8 +612,34 @@ class Handler(BaseHTTPRequestHandler):
             self.send_response(204); self.end_headers(); return
         self.send_response(200); self.end_headers()
 
-    def do_DELETE(self):
+    def _do_DELETE(self):
         self.send_response(200); self.end_headers()
+
+    # --- bezpecne wrappery: nikdy nenechat spadnout bez odpovedi (Vercel Status 0) ---
+    def _safe(self, fn):
+        try:
+            return fn()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+        except Exception:
+            import traceback
+            traceback.print_exc()
+            try:
+                self.send_json({"error": "internal"}, 500)
+            except Exception:
+                pass
+
+    def do_GET(self):
+        return self._safe(self._do_GET)
+
+    def do_POST(self):
+        return self._safe(self._do_POST)
+
+    def do_PUT(self):
+        return self._safe(self._do_PUT)
+
+    def do_DELETE(self):
+        return self._safe(self._do_DELETE)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))
