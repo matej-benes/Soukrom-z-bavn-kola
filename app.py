@@ -390,7 +390,7 @@ class Handler(BaseHTTPRequestHandler):
 
         # webove pomocne: seznam trid/predmetu pro admin UI
         if path == "/web/config":
-            return self.send_json({"school_name": DATA.get("school_name"), "classes": DATA.get("classes"), "subjects": DATA.get("subjects"), "users": [{"username": x["username"], "name": x["name"], "type": x["type"]} for x in DATA.get("users", [])]})
+            return self.send_json({"school_name": DATA.get("school_name"), "classes": DATA.get("classes"), "subjects": DATA.get("subjects"), "users": [{"username": x["username"], "name": x["name"], "type": x["type"], "class_id": x.get("class_id")} for x in DATA.get("users", [])]})
 
         print("Unhandled GET", self.path)
         return self.send_json({}, 200)
@@ -520,6 +520,42 @@ class Handler(BaseHTTPRequestHandler):
                 if sb_request("POST", "/rest/v1/school_store", {"key": k, "value": v}) is not None:
                     n += 1
             return self.send_json({"ok": True, "seeded": n})
+
+        if path == "/web/admin/add-user":
+            if not me or me.get("type") not in ("teacher", "admin"):
+                return self.send_json({"error": "forbidden"}, 403)
+            username = str(params.get("username", "")).strip()[:64]
+            password = str(params.get("password", ""))[:255]
+            name = str(params.get("name", username)).strip()[:255] or username
+            class_id = str(params.get("class_id", "") or "").strip() or None
+            utype = str(params.get("type", "student")).strip()
+            if utype not in ("student", "teacher", "admin"):
+                utype = "student"
+            if not username or not password:
+                return self.send_json({"error": "missing-username-or-password"}, 400)
+            if find_user(username):
+                return self.send_json({"error": "user-exists"}, 400)
+            if utype == "student" and not class_id:
+                classes = DATA.get("classes", [])
+                class_id = classes[0]["Id"] if classes else "3A"
+            DATA.setdefault("users", []).append({
+                "username": username, "password": password, "name": name,
+                "class_id": class_id, "type": utype})
+            save_data("users")
+            return self.send_json({"ok": True})
+
+        if path == "/web/admin/delete-user":
+            if not me or me.get("type") not in ("teacher", "admin"):
+                return self.send_json({"error": "forbidden"}, 403)
+            username = str(params.get("username", "")).strip()
+            if username == me["username"]:
+                return self.send_json({"error": "cannot-delete-self"}, 400)
+            before = len(DATA.get("users", []))
+            DATA["users"] = [x for x in DATA.get("users", []) if x["username"] != username]
+            if len(DATA["users"]) == before:
+                return self.send_json({"error": "not-found"}, 404)
+            save_data("users")
+            return self.send_json({"ok": True})
 
         print("Unhandled POST", self.path)
         return self.send_json({}, 200)
