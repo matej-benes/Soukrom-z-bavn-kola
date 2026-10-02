@@ -149,13 +149,22 @@ def verify_token(token: str, kind: str = "access"):
     except Exception:
         return None
 
-def make_id_token(username: str, client_id: str, host: str) -> str:
-    """Fake OIDC id_token - nova aplikace ho muze vyzadovat pro identitu uzivatele."""
+def make_id_token(username: str, client_id: str, host: str, access_token: str = "") -> str:
+    """Fake OIDC id_token - nova aplikace ho muze striktne parsovat vcetne claims."""
+    import hashlib as _hl
     now = int(time.time())
-    header = _b64e(json.dumps({"alg": "HS256", "kid": "mojeskola1", "typ": "JWT"}).encode())
+    header = _b64e(json.dumps(
+        {"alg": "RS256", "kid": "b1a2k3a4la5ri6mo7je8sk9ol-a1", "typ": "JWT",
+         "x5t": _b64e(_hl.sha1(b"mojeskola").digest())}).encode())
+    ath = _b64e(_hl.sha256(access_token.encode()).digest()[:16]) if access_token else _b64e(secrets.token_bytes(16))
     payload = _b64e(json.dumps({
-        "sub": username, "oi_au_id": _b64e(secrets.token_bytes(12)),
-        "azp": client_id or "ANDR", "aud": client_id or "ANDR",
+        "sub": username,
+        "oi_au_id": secrets.token_hex(16),
+        "jti": f"{secrets.token_hex(4)}-{secrets.token_hex(2)}-{secrets.token_hex(2)}-{secrets.token_hex(2)}-{secrets.token_hex(6)}",
+        "azp": client_id or "ANDR",
+        "at_hash": ath,
+        "oi_tkn_id": secrets.token_hex(16),
+        "aud": client_id or "ANDR",
         "exp": now + 1800, "iat": now,
         "iss": f"https://{(host or 'mojeskola').split(',')[0].strip()}/"}).encode())
     sig = _b64e(hmac.new(APP_SECRET.encode(), f"{header}.{payload}".encode(), hashlib.sha256).digest())
@@ -457,7 +466,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"bak:ApiVersion": API_VERSION, "bak:AppVersion": APP_VERSION,
                     "token_type": "Bearer", "expires_in": 3599, "scope": "openid profile offline_access bakalari_api",
                     "bak:UserId": "1", "refresh_token": refresh, "access_token": access,
-                    "id_token": make_id_token(user["username"], cid, host)})
+                    "id_token": make_id_token(user["username"], cid, host, access)})
             elif grant == "refresh_token":
                 rt = params.get("refresh_token", "")
                 username = sessions_refresh.get(rt) or verify_token(rt, "refresh")
@@ -470,7 +479,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send_json({"bak:ApiVersion": API_VERSION, "bak:AppVersion": APP_VERSION,
                     "token_type": "Bearer", "expires_in": 3599, "scope": "openid profile offline_access bakalari_api",
                     "bak:UserId": "1", "refresh_token": rt, "access_token": access,
-                    "id_token": make_id_token(username, cid, host)})
+                    "id_token": make_id_token(username, cid, host, access)})
             return self.send_json({"error": "unsupported_grant"}, 400)
 
         if path == "/api/3/register-notification" or path == "/api/3/unregister-user-notification":
