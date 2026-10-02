@@ -294,8 +294,10 @@ class Handler(BaseHTTPRequestHandler):
             ct = "application/javascript" if path.endswith(".js") else "text/css"
             return self.send_file(path.lstrip("/"), ct)
 
-        # --- zakladni info ---
-        if path in ("/api/3", "/api"):
+        # --- zakladni info (GET /api vraci POLE, GET /api/3 vraci OBJEKT - dle docs) ---
+        if path == "/api":
+            return self.send_json([{"ApiVersion": API_VERSION, "ApplicationVersion": APP_VERSION, "BaseUrl": "api/3"}])
+        if path == "/api/3":
             return self.send_json({"ApiVersion": API_VERSION, "ApplicationVersion": APP_VERSION, "BaseUrl": "api/3"})
 
         # vse dale vyzaduje auth, krome logintoken/webmodule (ty app vola i s tokenem, ale vratime i bez)
@@ -333,7 +335,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"CertificateTerms": DATA.get("final_terms", [])})
         if path == "/api/3/marks/count-new":
             n = sum(1 for s in DATA.get("marks", []) for m in s.get("Marks", []) if m.get("IsNew"))
-            return self.send_json({"Count": n})
+            return self.send_json(n)
         if path == "/api/3/marks/what-if":
             return self.send_json({"Subjects": []})
         if path == "/api/3/marks/measures":
