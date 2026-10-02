@@ -133,11 +133,12 @@ async function show(t){
     if(!['teacher','admin'].includes(ME.UserType)&&ME.FullName!=='Admin Školy'){v.innerHTML='<div class="card">Jen pro učitele. Přihlas se jako <b>ucitel / ucitel123</b>.</div>';return;}
     const subs=CFG.subjects.map(s=>`<option value="${s.SubjectID}">${s.SubjectName}</option>`).join('');
     const clsOpts=CFG.classes.map(c=>`<option value="${c.Id}">${c.Name}</option>`).join('');
-    const users=CFG.users.map(x=>`<tr><td><b>${x.username}</b></td><td>${x.name}</td><td>${x.type==='student'?'žák':x.type==='teacher'?'učitel':'admin'}</td><td>${x.class_id||'—'}</td><td><button onclick="adminDelUser('${x.username}')">Smazat</button></td></tr>`).join('');
+    const isAdmin=ME['bak:Role']==='admin';
+    const users=CFG.users.map(x=>`<tr><td><b>${x.username}</b></td><td>${x.name}</td><td>${x.type==='student'?'žák':x.type==='teacher'?'učitel':'admin'}</td><td>${x.class_id||'—'}</td><td>${isAdmin?`<button onclick="adminDelUser('${x.username}')">Smazat</button>`:''}</td></tr>`).join('');
     v.innerHTML=`<div class="card"><h3>Uživatelé (${CFG.users.length})</h3>
-    <table><tr><th>Login</th><th>Jméno</th><th>Role</th><th>Třída</th><th></th></tr>${users}</table></div>
+    <table><tr><th>Login</th><th>Jméno</th><th>Role</th><th>Třída</th><th></th></tr>${users}</table>${isAdmin?'':'<p class="mut">Uživatele spravuje administrátor (přihlas se jako admin).</p>'}</div>
     <div class="grid">
-    <div class="card"><h3>+ Uživatel</h3><input id="au_u" placeholder="login (např. novakova)"><input id="au_p" placeholder="heslo"><input id="au_n" placeholder="jméno a příjmení"><div class="row"><select id="au_t"><option value="student">žák</option><option value="teacher">učitel</option><option value="admin">admin</option></select><select id="au_c">${clsOpts}</select></div><button class="go" onclick="adminAddUser()">Přidat uživatele</button></div>
+    ${isAdmin?`<div class="card"><h3>+ Uživatel (jen admin)</h3><input id="au_u" placeholder="login (např. novakova)"><input id="au_p" placeholder="heslo"><input id="au_n" placeholder="jméno a příjmení"><div class="row"><select id="au_t"><option value="student">žák</option><option value="teacher">učitel</option><option value="admin">admin</option></select><select id="au_c">${clsOpts}</select></div><button class="go" onclick="adminAddUser()">Přidat uživatele</button></div>`:''}
     <div class="card"><h3>+ Známka</h3><select id="am_s">${subs}</select><input id="am_m" placeholder="známka 1-5"><input id="am_c" placeholder="popis (písemka)"><input id="am_w" type="number" value="3" placeholder="váha"><button class="go" onclick="adminMark()">Uložit</button></div>
     <div class="card"><h3>+ Úkol</h3><select id="ah_s">${subs}</select><textarea id="ah_t" placeholder="zadání"></textarea><input id="ah_d" type="date"><button class="go" onclick="adminHw()">Uložit</button></div>
     <div class="card"><h3>+ Zpráva žákům</h3><input id="ag_t" placeholder="nadpis"><textarea id="ag_x" placeholder="text"></textarea><button class="go" onclick="adminMsg()">Odeslat</button></div>

@@ -321,6 +321,7 @@ class Handler(BaseHTTPRequestHandler):
                 "FullName": f'{me["name"]}, {ci["Abbrev"]}' if me.get("class_id") else me["name"],
                 "SchoolOrganizationName": DATA.get("school_name", "Moje škola"),
                 "SchoolType": None, "UserType": utype, "UserTypeText": utype,
+                "bak:Role": me.get("type", "student"),
                 "StudyYear": 3, "EnabledModules": enabled_modules(),
                 "SettingModules": {"Common": {"$type": "CommonModuleSettings",
                     "ActualSemester": {"SemesterId": "1", "From": "2026-09-01T00:00:00+02:00", "To": "2027-01-30T23:59:59+01:00"}}},
@@ -510,8 +511,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"ok": True})
 
         if path == "/web/admin/seed":
-            # jednorazove naplneni Supabase z lokalniho souboru (ucitel/admin)
-            if not me or me.get("type") not in ("teacher", "admin"):
+            # jednorazove naplneni Supabase z lokalniho souboru (jen admin)
+            if not me or me.get("type") != "admin":
                 return self.send_json({"error": "forbidden"}, 403)
             if not SUPABASE_URL or not SUPABASE_KEY:
                 return self.send_json({"error": "no-supabase"}, 400)
@@ -522,7 +523,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"ok": True, "seeded": n})
 
         if path == "/web/admin/add-user":
-            if not me or me.get("type") not in ("teacher", "admin"):
+            if not me or me.get("type") != "admin":
                 return self.send_json({"error": "forbidden"}, 403)
             username = str(params.get("username", "")).strip()[:64]
             password = str(params.get("password", ""))[:255]
@@ -545,7 +546,7 @@ class Handler(BaseHTTPRequestHandler):
             return self.send_json({"ok": True})
 
         if path == "/web/admin/delete-user":
-            if not me or me.get("type") not in ("teacher", "admin"):
+            if not me or me.get("type") != "admin":
                 return self.send_json({"error": "forbidden"}, 403)
             username = str(params.get("username", "")).strip()
             if username == me["username"]:
